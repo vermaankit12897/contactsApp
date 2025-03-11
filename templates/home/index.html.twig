@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Home - Social Network{% endblock %}
+
+{% block body %}
+<div class="container text-center">
+    <h1>Welcome to the Social Network</h1>
+    <p>This is a simple social network where you can sign up, log in, and manage your profile.</p>
+    <a href="{{ path('app_register') }}" class="btn btn-primary">Sign Up</a>
+    <a href="{{ path('app_login') }}" class="btn btn-secondary">Login</a>
+</div>
+{% endblock %}

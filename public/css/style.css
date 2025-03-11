@@ -1,0 +1,31 @@
+body {
+    background-color: #f0f2f5;
+}
+
+.card {
+    border-radius: 12px;
+    border: 1px solid #ddd;
+}
+
+.container {
+    max-width: 800px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+}
+
+img.img-fluid {
+    max-height: 300px;
+    object-fit: cover;
+}
+
+.btn-light {
+    border: none;
+    font-weight: bold;
+}
+
+textarea {
+    resize: none;
+}

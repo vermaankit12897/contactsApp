@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="container">
+    <h2 class="text-center mt-4">My Profile</h2>
+    <div class="card p-4 shadow-lg">
+        <div class="text-center">
+            <img src="{{ asset('uploads/' ~ user.profilePicture) }}" class="rounded-circle border" width="150">
+        </div>
+        <p><strong>Name:</strong> {{ user.fullName }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Age:</strong> {{ user.age }}</p>
+
+        <!-- Edit Profile Button -->
+        <a href="{{ path('edit_profile') }}" class="btn btn-warning w-100 mt-3">Edit Profile</a>
+
+        <!-- Logout Button -->
+        <form action="{{ path('app_logout') }}" method="post">
+            <button type="submit" class="btn btn-danger w-100 mt-3">Logout</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

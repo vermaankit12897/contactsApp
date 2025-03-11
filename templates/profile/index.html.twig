@@ -1,0 +1,139 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="container">
+    <h2 class="text-center mt-4">My Profile</h2>
+    <div class="card p-4 shadow-lg">
+        <div class="text-center">
+            <img src="{{ asset('uploads/profile_pictures/' ~ user.profilePicture) }}" class="rounded-circle border" width="150">
+        </div>
+        <p><strong>Name:</strong> {{ user.fullName }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Age:</strong> {{ user.age }}</p>
+
+        <!-- Edit Profile Button -->
+        <a href="{{ path('edit_profile') }}" class="btn btn-warning w-100 mt-3">Edit Profile</a>
+
+        <!-- View All Posts Button -->
+        <a href="{{ path('post_list') }}" class="btn btn-info w-100 mt-3">📢 View All Posts</a>
+
+        <!-- Create a Post -->
+        <h3 class="mt-4">Create a Post</h3>
+        <div class="card p-3 shadow-lg mb-4">
+            <form id="postForm" enctype="multipart/form-data">
+                <textarea name="description" id="description" class="form-control" placeholder="Write something..." rows="2"></textarea>
+                <div class="d-flex justify-content-between mt-2">
+                    <input type="file" name="postImage" id="postImage" class="form-control w-50">
+                    <button type="submit" class="btn btn-primary">Post</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Display Latest 10 Posts -->
+        <h3 class="mt-4">My Latest Posts</h3>
+        <div id="postList" class="mt-4">
+            {% for post in user.getPosts()|slice(0, 10) %}
+                <div class="card mb-3 post-item" id="post-{{ post.id }}">
+                    <div class="card-header d-flex justify-content-between">
+                        <span>Posted on: {{ post.createdAt|date('d M Y') }}</span>
+                        <button class="btn btn-sm btn-danger delete-btn" data-id="{{ post.id }}">🗑 Delete</button>
+                    </div>
+                    {% if post.image %}
+                        <img src="{{ asset('uploads/posts/' ~ post.image) }}" class="img-fluid rounded">
+                    {% endif %}
+                    <div class="card-body">
+                        <p>{{ post.description }}</p>
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-light like-btn" data-id="{{ post.id }}">
+                                👍 Like (<span id="likes-{{ post.id }}">{{ post.getLikesCount() }}</span>)
+                            </button>
+                            <button class="btn btn-light dislike-btn" data-id="{{ post.id }}">
+                                👎 Dislike (<span id="dislikes-{{ post.id }}">{{ post.getDislikesCount() }}</span>)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <p class="text-center text-muted">No posts available.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Handle Post Submission
+document.querySelector('#postForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    let formData = new FormData(this);
+
+    fetch('{{ path("post_create") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            let postHtml = `
+                <div class="card mb-3 post-item" id="post-${data.id}">
+                    <div class="card-header d-flex justify-content-between">
+                        <span>Posted on: ${data.createdAt}</span>
+                        <button class="btn btn-sm btn-danger delete-btn" data-id="${data.id}">🗑 Delete</button>
+                    </div>
+                    ${data.image ? `<img src="/uploads/posts/${data.image}" class="img-fluid rounded">` : ''}
+                    <div class="card-body">
+                        <p>${data.description}</p>
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-light like-btn" data-id="${data.id}">👍 Like (<span id="likes-${data.id}">0</span>)</button>
+                            <button class="btn btn-light dislike-btn" data-id="${data.id}">👎 Dislike (<span id="dislikes-${data.id}">0</span>)</button>
+                        </div>
+                    </div>
+                </div>`;
+
+            document.getElementById('postList').insertAdjacentHTML('afterbegin', postHtml);
+            document.getElementById('description').value = "";
+            document.getElementById('postImage').value = "";
+        } else {
+            alert("Error posting.");
+        }
+    })
+    .catch(error => console.error("Error:", error));
+});
+
+// Handle Like/Dislike
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('like-btn') || e.target.classList.contains('dislike-btn')) {
+        let postId = e.target.getAttribute('data-id');
+        let isLike = e.target.classList.contains('like-btn');
+        let url = isLike ? '/like/' + postId : '/dislike/' + postId;
+
+        fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('likes-' + postId).textContent = data.likes;
+            document.getElementById('dislikes-' + postId).textContent = data.dislikes;
+        })
+        .catch(error => console.error("Error:", error));
+    }
+});
+
+// Handle Post Deletion
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('delete-btn')) {
+        let postId = e.target.getAttribute('data-id');
+
+        if (confirm("Are you sure you want to delete this post?")) {
+            fetch('/post/delete/' + postId, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('post-' + postId).remove();
+                } else {
+                    alert("Error deleting post.");
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    }
+});
+</script>
+{% endblock %}

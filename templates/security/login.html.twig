@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card p-4 shadow-lg" style="max-width: 350px; width: 100%;">
+        <h3 class="text-center">Social Network Login</h3>
+
+        <form method="post">
+            <div class="mb-3">
+                <input type="email" name="_username" class="form-control" placeholder="Email Address" required>
+            </div>
+            <div class="mb-3">
+                <input type="password" name="_password" class="form-control" placeholder="Password" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+        </form>
+
+        <p class="text-center mt-3 small">Don't have an account? <a href="{{ path('app_register') }}">Create Account</a></p>
+    </div>
+</div>
+{% endblock %}
